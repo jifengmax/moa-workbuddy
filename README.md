@@ -41,6 +41,31 @@ bash <(curl -fsSL https://raw.githubusercontent.com/jifengmax/moa-workbuddy/mast
 
 或在 WorkBuddy 对话里说「用 MoA 解决这个问题：……」，由妙妙调用技能。
 
+### 多 Agent 编程式安装（给其他 agent / CI）
+
+本仓库附带一个 **stdlib-only** 的多 agent 安装器 `tools/install_skill.py`——任何 agent 运行时都能用它把技能安全装到自己的技能目录，无需额外依赖。它覆盖五大机制（完整设计见 [docs/MULTI_AGENT_INSTALL.md](docs/MULTI_AGENT_INSTALL.md)）：
+
+1. **入口方式**：Python API（`install_skill(InstallRequest(...))`）、CLI、或 `github:` / `file:` / `registry:` 三种来源。
+2. **权限与安全**：来源白名单（默认仅 `github:jifengmax/*` + 本地 `file:`）、清单哈希校验、可选 ed25519 签名、token 绝不落盘。
+3. **一致性验证**：装后校验结构 / `SKILL.md` frontmatter / 编译 / 离线自测 / 清单哈希。
+4. **并发处理**：按目标目录隔离 + 建议锁文件串行化 + 原子 `os.replace` + 幂等（内容相同直接 no-op）。
+5. **回滚**：暂存 → 备份 → 原子替换 → 失败恢复，并返回明确错误码。
+
+```bash
+# 其他 agent 调用示例（来自 GitHub 发布源）
+python tools/install_skill.py install \
+  --source github:jifengmax/moa-workbuddy@v1.3 \
+  --target ~/.workbuddy/skills/moa
+```
+
+```python
+from tools.install_skill import install_skill, InstallRequest
+r = install_skill(InstallRequest(
+    source="github:jifengmax/moa-workbuddy@v1.3",
+    target=r"C:\Users\agent\.workbuddy\skills\moa",
+    agent_id="analyst-07"))
+```
+
 ## 🚀 用法
 
 ### 直接运行（最常用）
@@ -78,7 +103,8 @@ python tools/mixture_of_agents_tool_free.py --list-models
 ### 测试
 
 ```bash
-python tools/test_moa.py   # 18 个离线用例，全程 mock，无需 Key
+python tools/test_moa.py     # 18 个离线用例（核心工具，全程 mock，无需 Key）
+python tools/test_install.py # 4 个离线用例（多 agent 安装器：安装/幂等/回滚/白名单）
 ```
 
 ### 作为 Python 模块调用
@@ -149,9 +175,14 @@ moa-workbuddy/
 ├── install.sh                           # 一键安装脚本
 ├── requirements.txt                     # 运行依赖（requests）
 ├── .env.example                         # 环境变量模板
+├── docs/
+│   └── MULTI_AGENT_INSTALL.md            # 多 agent 安装机制设计（5 大方面 + 接口定义）
+├── MANIFEST.json                        # 发布清单（文件哈希，安装器校验用）
 ├── tools/
 │   ├── mixture_of_agents_tool_free.py    # MoA 核心实现（可独立运行，含 CLI）
-│   └── test_moa.py                       # 离线单测（无需网络/Key）
+│   ├── install_skill.py                  # 多 agent 安装器（stdlib-only）
+│   ├── test_moa.py                       # 离线单测（核心工具，无需网络/Key）
+│   └── test_install.py                   # 离线单测（安装器：安装/幂等/回滚/白名单）
 └── references/
     ├── SETUP.md                          # 原版快速开始（Hermes，仅供参考）
     └── model-test-results.md             # 模型实测结果

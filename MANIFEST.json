@@ -1,0 +1,23 @@
+{
+  "files": {
+    ".env.example": "106d93e00decc9370d1de1577bf350fb516ddca9aeca045f1be36db86d0a9672",
+    ".gitignore": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
+    "CHANGELOG.md": "a961663a5ed9b6bc4f3204e513b199bfdee18f7b60eca4e32710a4613c3954b5",
+    "LICENSE": "bcd6d3fbda8324867c7d29fcbd7bea25dc2fdf5beb49d3eee1673ce3fab146c3",
+    "README.md": "da448332b72608cdda60ed6e5d811e0c43786275fff13a3353956ae57b7401a0",
+    "SKILL.md": "14d4d49f355753ada862b91255b1ec9aff7a6f7ddc42423f6eb4953b55c19dc2",
+    "docs/MULTI_AGENT_INSTALL.md": "9dc8e1fb1a07091623c6d4eface70972012d70abf60b471f893a8d45efb26e9f",
+    "install.sh": "f6bd89921dd5b2442d9f5fe99bc8f8bc316f6a001193083b34b32c802fa7cf29",
+    "references/SETUP.md": "25778d6cfd284a491e96dd8f3ad9140d230c9d0523daa9a6281a0df7d2ef7556",
+    "references/model-test-results.md": "bf1830893946bd08a057b2569acf12315094d9124853f4cf7301843144bd0f54",
+    "requirements.txt": "a397bd0114551a6f035668b9ddd96089c2d9d3bba036a8386469b07ebc07c573",
+    "tools/install_skill.py": "beff36363ea814160789744dbe3eb1fcafc96102fb1988ec4b1f1dc708cc510b",
+    "tools/mixture_of_agents_tool_free.py": "4cf2226ce22bd8d2c140beacc25ad191d629bde27e4f22c3010408bd1aee82cc",
+    "tools/test_install.py": "f594eca6bd69568288a64d0cf651c6b85c9f5c685026391ef3de296655b26fd5",
+    "tools/test_moa.py": "1a6dbc5836670803f4d87eefb1fade276a6f582d7c346b9f4c6945f03e709356"
+  },
+  "generated_at": "2026-07-11T00:39:00+0800",
+  "hash": "1a806aa67307108e849c8fb741518a8d43a84ec4d771f70b7e34e811278b751d",
+  "name": "moa",
+  "version": "1.3.0"
+}

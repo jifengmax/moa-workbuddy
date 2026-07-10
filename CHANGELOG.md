@@ -3,6 +3,32 @@
 All notable changes to this WorkBuddy-adapted MoA skill are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.3.0] - 2026-07-11
+
+### Added
+- **Multi-agent installer** `tools/install_skill.py` (stdlib-only, zero deps) so any
+  agent runtime can install this skill into its own skill dir. Covers the five
+  required aspects (see `docs/MULTI_AGENT_INSTALL.md`):
+  - **Entry points**: Python API (`install_skill(InstallRequest)`), CLI, and
+    `github:` / `file:` / `registry:` sources.
+  - **Permission & security**: source allowlist (default `github:jifengmax/*` +
+    local `file:`), manifest-hash check, optional ed25519 signature hook,
+    short-lived token that is never persisted.
+  - **Consistency verification**: structure / `SKILL.md` frontmatter / compile /
+    offline self-test / manifest-hash, all run on a staged copy before commit.
+  - **Concurrency**: per-target isolation, advisory lockfile serialization,
+    atomic `os.replace`, and idempotency (identical hash → no-op).
+  - **Rollback**: staged → backup → atomic replace → restore on failure, with
+    explicit error codes (`ERR_UNTRUSTED_SOURCE`, `ERR_VERIFY_FAILED`, …).
+- `MANIFEST.json` (publisher-built via `install_skill.py build-manifest`) used by
+  the installer for integrity verification.
+- `tools/test_install.py` — 4 offline integration tests (install / idempotency /
+  corrupt-source rollback / untrusted-source rejection).
+- `docs/MULTI_AGENT_INSTALL.md` — full design + interface definitions.
+
+### Changed
+- README / SKILL.md now document the multi-agent install path; file tree updated.
+
 ## [1.2.0] - 2026-07-11
 
 ### Changed

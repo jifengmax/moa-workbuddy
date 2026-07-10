@@ -1,7 +1,7 @@
 ---
 name: moa
 description: "Mixture of Agents (MoA) — 多模型并行提案 + 聚合器综合。把同一个问题同时发给多个免费大模型，收集各自回答后用聚合模型综合出更准的最终答案。基于 Wang et al. (2024) arXiv:2406.04692。需要 OpenCode Zen 免费 API Key。"
-version: 1.1.0
+version: 1.3.0
 author: mantop2010 (adapted for WorkBuddy by 妙妙)
 license: MIT
 platforms: [linux, macos, windows]
@@ -130,17 +130,32 @@ User Question
 | 文件 | 用途 |
 |---|---|
 | `tools/mixture_of_agents_tool_free.py` | MoA 核心实现（可独立运行，含 CLI） |
-| `tools/test_moa.py` | 离线单测（全程 mock，无需网络/Key） |
+| `tools/install_skill.py` | 多 agent 安装器（stdlib-only；安装/校验/并发/回滚） |
+| `tools/test_moa.py` | 核心工具离线单测（18 例，无需网络/Key） |
+| `tools/test_install.py` | 安装器离线单测（4 例：安装/幂等/回滚/白名单） |
+| `docs/MULTI_AGENT_INSTALL.md` | 多 agent 安装机制设计（入口/安全/验证/并发/回滚 + 接口） |
+| `MANIFEST.json` | 发布清单（文件哈希，安装器一致性校验用） |
 | `requirements.txt` | 运行依赖（仅 `requests`） |
 | `.env.example` | 环境变量模板 |
 | `references/SETUP.md` | 原版快速开始（面向 Hermes，仅供参考） |
 | `references/model-test-results.md` | 模型实测结果 |
 | `CHANGELOG.md` | 版本变更记录 |
 
+## 🤝 其他 agent 如何安装本技能
+
+本技能支持**多 agent 分发安装**。任意 agent 运行时可用 `tools/install_skill.py`（stdlib-only，零依赖）把技能装到自己的技能目录：
+
+```bash
+python tools/install_skill.py install --source github:jifengmax/moa-workbuddy@v1.3 --target <技能目录>
+```
+
+设计详情与接口定义见 [docs/MULTI_AGENT_INSTALL.md](docs/MULTI_AGENT_INSTALL.md)。
+
 ## 🧪 测试
 
 ```bash
-python tools/test_moa.py        # 18 个离线用例，全程 mock，无需 Key
+python tools/test_moa.py        # 18 个离线用例（核心工具，全程 mock，无需 Key）
+python tools/test_install.py    # 4 个离线用例（安装器：安装/幂等/回滚/白名单）
 ```
 
 ## 📜 License
