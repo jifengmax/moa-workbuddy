@@ -25,9 +25,14 @@
 
 ## 📦 安装到 WorkBuddy
 
+### 一键安装（推荐）
+
 ```bash
-# 方式一：git 克隆到技能目录
-git clone https://github.com/<你的用户名>/moa-workbuddy.git ~/.workbuddy/skills/moa
+# 方式一：直接克隆
+git clone https://github.com/jifengmax/moa-workbuddy.git ~/.workbuddy/skills/moa
+
+# 方式二：用仓库自带的 install.sh（自动克隆/更新 + 提示配置 Key）
+bash <(curl -fsSL https://raw.githubusercontent.com/jifengmax/moa-workbuddy/master/install.sh)
 ```
 
 或在 WorkBuddy 对话里说「用 MoA 解决这个问题：……」，由妙妙调用技能。
@@ -106,6 +111,7 @@ moa-workbuddy/
 ├── SKILL.md                              # WorkBuddy 技能定义（中文）
 ├── LICENSE                               # MIT
 ├── README.md                            # 本文件
+├── install.sh                           # 一键安装脚本
 ├── tools/
 │   └── mixture_of_agents_tool_free.py    # MoA 核心实现（可独立运行）
 └── references/
