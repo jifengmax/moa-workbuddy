@@ -1,7 +1,7 @@
 ---
 name: moa
 description: "Mixture of Agents (MoA) — 多模型并行提案 + 聚合器综合。把同一个问题同时发给多个免费大模型，收集各自回答后用聚合模型综合出更准的最终答案。基于 Wang et al. (2024) arXiv:2406.04692。需要 OpenCode Zen 免费 API Key。"
-version: 3.2.1
+version: 1.1.0
 author: mantop2010 (adapted for WorkBuddy by 妙妙)
 license: MIT
 platforms: [linux, macos, windows]
@@ -28,8 +28,9 @@ display_name_zh: "MoA 多智能体混合"
    ```
 3. 确保 Python 有 `requests`：
    ```bash
-   pip install requests
+   pip install -r requirements.txt   # 或 pip install requests
    ```
+   > 也可把 `.env.example` 复制为 `.env`（放在 skill 目录、`~/.workbuddy/` 或 `~/`）后填入 Key，脚本会自动读取。
 
 ⚠️ **数据说明**：运行 MoA 时你的问题会发往第三方服务 `opencode.ai`（OpenCode Zen）。这是 MoA 的正常行为，请知悉你的 prompt 会离开本机。
 
@@ -44,8 +45,29 @@ display_name_zh: "MoA 多智能体混合"
    ```bash
    python "<skill_dir>/tools/mixture_of_agents_tool_free.py" "你的问题"
    ```
-   其中 `<skill_dir>` 是本 skill 所在目录。脚本会并行调用 5 个免费参考模型，再用聚合模型综合，输出 JSON（`success / response / models_used / processing_time`）。
+   其中 `<skill_dir>` 是本 skill 所在目录。脚本会**真并行**调用 5 个免费参考模型，再用聚合模型综合，输出 JSON（`success / response / models_used / rounds / successful_references / failed_references / processing_time`）。
 3. 把 `response` 字段的内容整理后回复用户。
+
+#### 常用 CLI 选项
+
+| 选项 | 说明 |
+|---|---|
+| `-r, --rounds N` | MoA 层数（默认 1）。>1 时上一层的答案会作为下一层参考，逐层精炼 |
+| `-m, --models M ...` | 覆盖参考模型列表 |
+| `-a, --aggregator MODEL` | 覆盖聚合模型 |
+| `-t, --temperature F` / `--agg-temperature F` | 参考/聚合温度 |
+| `--max-tokens / --timeout / --max-retries / --min-success` | 细粒度控制 |
+| `-o, --output FILE` | 结果写入文件 |
+| `--text` | 只打印最终答案（不带 JSON 包装），便于管道串联 |
+| `-v, --verbose` | 把 INFO 日志打到 stderr |
+| `--check` / `--config` / `--list-models` | 自检 / 打印配置 / 列出模型后退出 |
+
+也支持 stdin：`echo "你的问题" | python tools/mixture_of_agents_tool_free.py --text`
+
+```bash
+# 两层 MoA，只要最终答案
+python "<skill_dir>/tools/mixture_of_agents_tool_free.py" -r 2 --text "设计一个分布式限流器"
+```
 
 ### 方式 B：作为 Python 模块调用
 
@@ -107,9 +129,19 @@ User Question
 
 | 文件 | 用途 |
 |---|---|
-| `tools/mixture_of_agents_tool_free.py` | MoA 核心实现（可独立运行） |
+| `tools/mixture_of_agents_tool_free.py` | MoA 核心实现（可独立运行，含 CLI） |
+| `tools/test_moa.py` | 离线单测（全程 mock，无需网络/Key） |
+| `requirements.txt` | 运行依赖（仅 `requests`） |
+| `.env.example` | 环境变量模板 |
 | `references/SETUP.md` | 原版快速开始（面向 Hermes，仅供参考） |
 | `references/model-test-results.md` | 模型实测结果 |
+| `CHANGELOG.md` | 版本变更记录 |
+
+## 🧪 测试
+
+```bash
+python tools/test_moa.py        # 18 个离线用例，全程 mock，无需 Key
+```
 
 ## 📜 License
 MIT — 自由使用、分享。

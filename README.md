@@ -6,7 +6,10 @@
 
 - ✅ 重写为 WorkBuddy 技能格式（中文 `SKILL.md`）
 - ✅ 修复了原版缺失 `tools.debug_helpers` 依赖会导致崩溃的问题
-- ✅ 给核心脚本补上命令行入口，可直接 `python` 运行
+- ✅ 给核心脚本补上完整命令行入口（argparse + stdin），可直接 `python` 运行
+- ✅ **修复隐藏 bug：参考模型改为真并行**（原版 `asyncio.gather` 包着阻塞 `requests`，实为串行）
+- ✅ 实现论文核心的**多层 MoA**（`--rounds N`）
+- ✅ 429 限流处理、输入校验、日志、离线单测
 - ✅ 所有模型均使用 OpenCode Zen **免费**层，零成本
 
 ## 🔑 前置条件
@@ -18,8 +21,9 @@
    ```
 3. 安装依赖：
    ```bash
-   pip install requests
+   pip install -r requirements.txt   # 或 pip install requests
    ```
+   > 或把 `.env.example` 复制为 `.env`（放在 `tools/` 同级、`~/.workbuddy/` 或 `~/`）填入 Key，脚本会自动读取。
 
 > ⚠️ **数据说明**：运行 MoA 时，你的问题会发往第三方服务 `opencode.ai`（OpenCode Zen）。这是 MoA 机制本身决定的，请知悉你的 prompt 会离开本机，涉密内容慎用。
 
@@ -45,7 +49,37 @@ bash <(curl -fsSL https://raw.githubusercontent.com/jifengmax/moa-workbuddy/mast
 python tools/mixture_of_agents_tool_free.py "你的问题"
 ```
 
-输出 JSON：`{ success, response, models_used, processing_time }`，其中 `response` 即综合后的最终答案。
+输出 JSON：`{ success, response, models_used, rounds, successful_references, failed_references, processing_time }`，其中 `response` 即综合后的最终答案。
+
+### 常用选项
+
+```bash
+# 两层 MoA（逐层精炼），只输出最终答案
+python tools/mixture_of_agents_tool_free.py -r 2 --text "设计一个分布式限流器"
+
+# 从 stdin 读取问题
+echo "用一句话解释 MoA" | python tools/mixture_of_agents_tool_free.py --text
+
+# 自检 / 打印配置 / 列出模型
+python tools/mixture_of_agents_tool_free.py --check
+python tools/mixture_of_agents_tool_free.py --config
+python tools/mixture_of_agents_tool_free.py --list-models
+```
+
+| 选项 | 说明 |
+|---|---|
+| `-r, --rounds N` | MoA 层数（默认 1） |
+| `-m, --models` / `-a, --aggregator` | 覆盖参考/聚合模型 |
+| `-t, --temperature` / `--agg-temperature` | 采样温度 |
+| `--max-tokens` / `--timeout` / `--max-retries` / `--min-success` | 细粒度控制 |
+| `-o, --output FILE` | 结果写文件 |
+| `--text` / `-v, --verbose` | 只输出答案 / 打开日志 |
+
+### 测试
+
+```bash
+python tools/test_moa.py   # 18 个离线用例，全程 mock，无需 Key
+```
 
 ### 作为 Python 模块调用
 
@@ -111,9 +145,13 @@ moa-workbuddy/
 ├── SKILL.md                              # WorkBuddy 技能定义（中文）
 ├── LICENSE                               # MIT
 ├── README.md                            # 本文件
+├── CHANGELOG.md                         # 版本变更记录
 ├── install.sh                           # 一键安装脚本
+├── requirements.txt                     # 运行依赖（requests）
+├── .env.example                         # 环境变量模板
 ├── tools/
-│   └── mixture_of_agents_tool_free.py    # MoA 核心实现（可独立运行）
+│   ├── mixture_of_agents_tool_free.py    # MoA 核心实现（可独立运行，含 CLI）
+│   └── test_moa.py                       # 离线单测（无需网络/Key）
 └── references/
     ├── SETUP.md                          # 原版快速开始（Hermes，仅供参考）
     └── model-test-results.md             # 模型实测结果
