@@ -3,6 +3,23 @@
 All notable changes to this WorkBuddy-adapted MoA skill are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.2.0] - 2026-07-11
+
+### Changed
+- **Rewrote the two internal system prompts** for stronger model behavior:
+  - `AGGREGATOR_SYSTEM_PROMPT` now carries an explicit evaluation rubric
+    (cross-check claims, resolve contradictions instead of hedging, discard weak
+    candidates, preserve unique correct insights) plus an output contract
+    (lead with the answer, match the user's language/depth, use structure,
+    admit uncertainty instead of guessing).
+  - `LAYER_SYSTEM_PROMPT` (intermediate proposers) now clearly diverges from the
+    aggregator: it instructs proposers to correct errors, resolve contradictions,
+    and add value the prior candidates missed — refining rather than restating.
+
+### Fixed
+- The intermediate-layer prompt was previously near-identical to the aggregator
+  prompt, undermining the layered-refinement design; the two now have distinct roles.
+
 ## [1.1.0] - 2026-07-11
 
 ### Added

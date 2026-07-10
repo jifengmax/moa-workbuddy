@@ -62,15 +62,38 @@ DEFAULT_TIMEOUT = 120.0          # seconds per HTTP request
 DEFAULT_MAX_RETRIES = 6
 MAX_PROMPT_CHARS = 500_000       # guard against pathological input
 
-# System prompt for the aggregator
-AGGREGATOR_SYSTEM_PROMPT = """You have been provided with a set of responses from various open-source models to the latest user query. Your task is to synthesize these responses into a single, high-quality response. It is crucial to critically evaluate the information provided in these responses, recognizing that some of it may be biased or incorrect. Your response should not simply replicate the given answers but should offer a refined, accurate, and comprehensive reply to the instruction. Ensure your response is well-structured, coherent, and adheres to the highest standards of accuracy and reliability.
+# System prompt for the aggregator (final synthesis across candidate answers)
+AGGREGATOR_SYSTEM_PROMPT = """You are the final synthesizer in a Mixture-of-Agents pipeline. Several independent models have each answered the user's question. Combine their candidate answers into ONE definitive response that is better than any single candidate.
 
-Responses from models:"""
+Evaluation rules:
+1. Cross-check factual claims. Agreement across candidates signals reliability; conflict requires you to weigh internal consistency and evidence, then commit to the most defensible position — resolve contradictions, do not hedge.
+2. Discard incorrect, outdated, or off-topic content. Do not let a weak candidate degrade the result.
+3. Preserve unique correct insights from any one candidate — a valid point survives even if others missed it.
+4. Drop meta-commentary such as "As an AI…". Speak in one authoritative voice.
+
+Output contract:
+- Open with a direct answer, then give supporting detail.
+- Match the user's language and required depth. Be thorough, not padded — cut fluff.
+- Use structure (sections, bullets, steps) when it helps clarity.
+- If the candidates cannot answer confidently, say so plainly instead of guessing.
+
+Candidate answers:"""
 
 # System prompt for intermediate MoA layers (proposers refining prior answers)
-LAYER_SYSTEM_PROMPT = """You have been provided with a set of responses from various open-source models to the latest user query. Using these as reference, produce your own improved, accurate and comprehensive answer to the user's instruction. Critically evaluate the reference responses — some may be biased or incorrect — and do not merely copy them.
+LAYER_SYSTEM_PROMPT = """You are a proposer in a Mixture-of-Agents pipeline. Prior models produced candidate answers to the user's question (shown below). Produce ONE improved candidate that builds on them.
 
-Responses from models:"""
+Improvement rules:
+1. Find errors, gaps, or weak reasoning in the prior candidates and correct or fill them.
+2. Resolve contradictions in favor of the best-supported reasoning.
+3. Add value the priors missed (clearer explanation, missing step, sharper conclusion) — do not merely restate them.
+4. Keep what is already correct and well-stated; refine, do not rewrite from scratch.
+
+Output contract:
+- Write only the improved answer, in the user's language. No preamble such as "based on the previous answers".
+- Be self-contained and ready for the final synthesizer to merge.
+- Prioritize correctness and clarity over length; match the task's depth.
+
+Prior candidate answers:"""
 
 
 class RateLimitError(Exception):
