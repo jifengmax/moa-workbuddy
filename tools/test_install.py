@@ -40,7 +40,7 @@ class TestMultiAgentInstall(unittest.TestCase):
                                           agent_id="agentA"))
         self.assertTrue(r.success, r.error)
         self.assertFalse(r.already_installed)
-        self.assertEqual(r.version, "1.3.0")
+        self.assertEqual(r.version, "1.4.0")
         self.assertEqual(verify_installed(target), [])
 
     def test_idempotent_reinstall_is_noop(self):

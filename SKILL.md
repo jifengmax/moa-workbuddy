@@ -1,7 +1,7 @@
 ---
 name: moa
 description: "Mixture of Agents (MoA) — 多模型并行提案 + 聚合器综合。把同一个问题同时发给多个免费大模型，收集各自回答后用聚合模型综合出更准的最终答案。基于 Wang et al. (2024) arXiv:2406.04692。需要 OpenCode Zen 免费 API Key。"
-version: 1.3.0
+version: 1.4.0
 author: mantop2010 (adapted for WorkBuddy by 妙妙)
 license: MIT
 platforms: [linux, macos, windows]

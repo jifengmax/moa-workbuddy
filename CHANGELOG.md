@@ -3,6 +3,17 @@
 All notable changes to this WorkBuddy-adapted MoA skill are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.4.0] - 2026-07-11
+
+### Added
+- **自动化发布脚本 `release.sh`**：一条龙完成 `build-manifest` → 离线测试 →
+  改版本号 → `git commit` → `git tag` → `push` → 建 GitHub Release。
+  - 防坑：MANIFEST 在所有源码改动**之后**重建，避免哈希对不上导致安装器拒装
+  - 安全：GITHUB_TOKEN 只走 Authorization 头，绝不写入 remote URL，结束即消失
+  - 幂等：tag 已存在则跳过 commit/tag，仅补 `push` + Release
+  - 守护：CHANGELOG 顶部必须含本次版本段（可 `--skip-changelog` 跳过）
+  - 降级：无 token 时仍完成本地 commit + tag，提示手动 push
+
 ## [1.3.0] - 2026-07-11
 
 ### Added
